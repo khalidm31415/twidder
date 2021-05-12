@@ -1,0 +1,69 @@
+package controllers
+
+import (
+	"errors"
+	"fmt"
+	"gin-twitter/models"
+	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+)
+
+type CreateTweetInput struct {
+	Text string `binding:"required"`
+}
+
+func FindTweets(c *gin.Context) {
+	var tweets []models.Tweet
+	models.DB.Preload("User").Find(&tweets)
+	c.JSON(http.StatusOK, gin.H{"tweets": tweets})
+}
+
+func FindTweet(c *gin.Context) {
+	tweetId, _ := strconv.Atoi(c.Param("id"))
+	var tweet models.Tweet
+	result := models.DB.Preload("User").Take(&tweet, tweetId)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		fmt.Println(fmt.Errorf("[ERROR] %v", result.Error))
+		c.JSON(http.StatusNotFound, gin.H{"error": result.Error})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"payload": tweet})
+}
+
+func CreateTweet(c *gin.Context) {
+	v, _ := c.Get(identityKey)
+	user, _ := v.(models.User)
+
+	var input CreateTweetInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	tweet := models.Tweet{
+		Text:   input.Text,
+		UserID: user.ID,
+		User:   user,
+	}
+
+	if result := models.DB.Create(&tweet); result.Error != nil {
+		fmt.Println(fmt.Errorf("[ERROR] %v", result.Error))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"tweets": tweet})
+}
+
+func DeleteTweet(c *gin.Context) {
+	tweetId, _ := strconv.Atoi(c.Param("id"))
+	result := models.DB.Delete(&models.Tweet{}, tweetId)
+	if result.Error != nil {
+		fmt.Println(fmt.Errorf("[ERROR] %v", result.Error))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+	c.JSON(http.StatusNoContent, gin.H{"result": result})
+}
