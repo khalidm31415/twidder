@@ -27,7 +27,7 @@ func FindTweet(c *gin.Context) {
 	result := models.DB.Preload("User").Take(&tweet, tweetId)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		fmt.Println(fmt.Errorf("[ERROR] %v", result.Error))
-		c.JSON(http.StatusNotFound, gin.H{"error": result.Error})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tweet not found"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"payload": tweet})
@@ -59,11 +59,26 @@ func CreateTweet(c *gin.Context) {
 
 func DeleteTweet(c *gin.Context) {
 	tweetId, _ := strconv.Atoi(c.Param("id"))
-	result := models.DB.Delete(&models.Tweet{}, tweetId)
-	if result.Error != nil {
-		fmt.Println(fmt.Errorf("[ERROR] %v", result.Error))
+	var tweet models.Tweet
+	searchResult := models.DB.Take(&tweet, tweetId)
+	if errors.Is(searchResult.Error, gorm.ErrRecordNotFound) {
+		fmt.Println(fmt.Errorf("[ERROR] %v", searchResult.Error))
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tweet not found"})
+		return
+	}
+
+	v, _ := c.Get(identityKey)
+	user, _ := v.(models.User)
+	if user.ID != uint(tweet.UserID) {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User cannot delete other user's tweet"})
+		return
+	}
+
+	deleteResult := models.DB.Delete(&tweet)
+	if deleteResult.Error != nil {
+		fmt.Println(fmt.Errorf("[ERROR] %v", deleteResult.Error))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
-	c.JSON(http.StatusNoContent, gin.H{"result": result})
+	c.JSON(http.StatusNoContent, gin.H{"deleted": deleteResult})
 }

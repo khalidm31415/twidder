@@ -48,7 +48,9 @@ func main() {
 	r.GET("/users/:id/followings", controllers.GetUsersFollowings)
 
 	r.GET("/tweets", controllers.FindTweets)
+	r.GET("/tweets/:id", controllers.FindTweet)
 	r.POST("/tweets", authMiddleware.MiddlewareFunc(), controllers.CreateTweet)
+	r.DELETE("/tweets/:id", authMiddleware.MiddlewareFunc(), controllers.DeleteTweet)
 
 	r.POST("/follow", authMiddleware.MiddlewareFunc(), controllers.Follow)
 	r.POST("/unfollow", authMiddleware.MiddlewareFunc(), controllers.Unfollow)
