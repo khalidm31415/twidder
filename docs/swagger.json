@@ -1,0 +1,27 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "A twitter-like API implemented with Gin, GORM, and MySQL.",
+        "title": "Twitter with Gin and GORM",
+        "contact": {}
+    },
+    "host": "localhost:8080",
+    "paths": {
+        "/ping": {
+            "get": {
+                "description": "ping the server.",
+                "tags": [
+                    "root"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "pong",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

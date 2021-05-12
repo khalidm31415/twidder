@@ -10,22 +10,29 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
+	_ "gin-twitter/docs"
 )
 
+// @title Twitter with Gin and GORM
+// @description A twitter-like API implemented with Gin, GORM, and MySQL.
+
+// @host localhost:8080
 func main() {
 	err := godotenv.Load()
 	if err != nil {
 		panic("Error loading .env file")
 	}
 
+	models.ConnectDatabase()
+
 	r := gin.Default()
 
 	authMiddleware := middelwares.GeAuthtMiddleware()
 
-	r.GET("/ping", func(c *gin.Context) {
-		fmt.Println(c.Request.Header)
-		c.JSON(http.StatusOK, "pong")
-	})
+	r.GET("/ping", ping)
 
 	r.POST("/users/signup", controllers.Signup)
 	r.POST("/users//login", authMiddleware.LoginHandler)
@@ -49,7 +56,17 @@ func main() {
 	r.POST("/like", authMiddleware.MiddlewareFunc(), controllers.Like)
 	r.POST("/unlike", authMiddleware.MiddlewareFunc(), controllers.Unlike)
 
-	models.ConnectDatabase()
+	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
 	r.Run(fmt.Sprintf(":%s", os.Getenv("PORT")))
+}
+
+// Ping godoc
+// @Description ping the server.
+// @Tags root
+// @Success 200 {string} string "pong"
+// @Router /ping [get]
+func ping(c *gin.Context) {
+	c.JSON(http.StatusOK, "pong")
 }

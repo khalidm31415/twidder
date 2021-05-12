@@ -1,0 +1,17 @@
+host: localhost:8080
+info:
+  contact: {}
+  description: A twitter-like API implemented with Gin, GORM, and MySQL.
+  title: Twitter with Gin and GORM
+paths:
+  /ping:
+    get:
+      description: ping the server.
+      responses:
+        "200":
+          description: pong
+          schema:
+            type: string
+      tags:
+      - root
+swagger: "2.0"
