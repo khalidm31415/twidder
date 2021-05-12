@@ -44,7 +44,7 @@ func Like(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"payload": result})
+	c.JSON(http.StatusCreated, gin.H{"liked": result})
 }
 
 func Unlike(c *gin.Context) {
@@ -59,5 +59,5 @@ func Unlike(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusNoContent, gin.H{"payload": result})
+	c.JSON(http.StatusNoContent, gin.H{"unliked": result})
 }
