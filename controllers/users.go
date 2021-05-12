@@ -45,32 +45,6 @@ func GetUsersTweets(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"tweets": tweets})
 }
 
-func GetUsersFollowers(c *gin.Context) {
-	userId, _ := strconv.Atoi(c.Param("id"))
-	follows := []models.Follow{}
-	models.DB.Preload("Follower").Where("followee_id = ?", userId).Find(&follows)
-
-	followers := []models.User{}
-	for _, follow := range follows {
-		followers = append(followers, follow.Follower)
-	}
-
-	c.JSON(http.StatusOK, gin.H{"followers": followers})
-}
-
-func GetUsersFollowings(c *gin.Context) {
-	userId, _ := strconv.Atoi(c.Param("id"))
-	follows := []models.Follow{}
-	models.DB.Preload("Followee").Where("follower_id = ?", userId).Find(&follows)
-
-	followings := []models.User{}
-	for _, follow := range follows {
-		followings = append(followings, follow.Followee)
-	}
-
-	c.JSON(http.StatusOK, gin.H{"followings": followings})
-}
-
 func Signup(c *gin.Context) {
 	var input CreateUserInput
 	if err := c.ShouldBindJSON(&input); err != nil {
