@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gin-twitter/models"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -21,16 +22,10 @@ type UnlikeInput struct {
 func Like(c *gin.Context) {
 	v, _ := c.Get(identityKey)
 	user, _ := v.(models.User)
-
-	var input LikeInput
-	if err := c.ShouldBindJSON(&input); err != nil {
-		fmt.Println(fmt.Errorf("[ERROR] %v", err))
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
-		return
-	}
+	tweetId, _ := strconv.Atoi(c.Param("id"))
 
 	var tweet models.Tweet
-	result := models.DB.First(&tweet, input.TweetID)
+	result := models.DB.First(&tweet, tweetId)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		fmt.Println(fmt.Errorf("[ERROR] %v", result.Error))
 		c.JSON(http.StatusNotFound, gin.H{"error": result.Error})
@@ -55,15 +50,9 @@ func Like(c *gin.Context) {
 func Unlike(c *gin.Context) {
 	v, _ := c.Get(identityKey)
 	user, _ := v.(models.User)
+	tweetId, _ := strconv.Atoi(c.Param("id"))
 
-	var input UnlikeInput
-	if err := c.ShouldBindJSON(&input); err != nil {
-		fmt.Println(fmt.Errorf("[ERROR] %v", err))
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
-		return
-	}
-
-	result := models.DB.Delete(models.Like{}, "user_id = ? AND tweet_id = ?", user.ID, input.TweetID)
+	result := models.DB.Delete(models.Like{}, "user_id = ? AND tweet_id = ?", user.ID, tweetId)
 	if result.Error != nil {
 		fmt.Println(fmt.Errorf("[ERROR] %v", result.Error))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})

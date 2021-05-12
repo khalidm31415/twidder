@@ -55,8 +55,8 @@ func main() {
 	r.POST("/tweets", authMiddleware.MiddlewareFunc(), controllers.CreateTweet)
 	r.DELETE("/tweets/:id", authMiddleware.MiddlewareFunc(), controllers.DeleteTweet)
 
-	r.POST("/like", authMiddleware.MiddlewareFunc(), controllers.Like)
-	r.POST("/unlike", authMiddleware.MiddlewareFunc(), controllers.Unlike)
+	r.POST("/tweets/:id/like", authMiddleware.MiddlewareFunc(), controllers.Like)
+	r.POST("/tweets/:id/unlike", authMiddleware.MiddlewareFunc(), controllers.Unlike)
 
 	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
