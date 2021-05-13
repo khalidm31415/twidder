@@ -57,6 +57,7 @@ func main() {
 
 	r.POST("/tweets/:id/like", authMiddleware.MiddlewareFunc(), controllers.Like)
 	r.POST("/tweets/:id/unlike", authMiddleware.MiddlewareFunc(), controllers.Unlike)
+	r.GET("/tweets/:id/likes", controllers.Likes)
 
 	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))

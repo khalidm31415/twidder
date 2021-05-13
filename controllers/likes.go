@@ -44,7 +44,7 @@ func Like(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"liked": result})
+	c.JSON(http.StatusCreated, gin.H{"liked": tweet})
 }
 
 func Unlike(c *gin.Context) {
@@ -52,12 +52,39 @@ func Unlike(c *gin.Context) {
 	user, _ := v.(models.User)
 	tweetId, _ := strconv.Atoi(c.Param("id"))
 
-	result := models.DB.Delete(models.Like{}, "user_id = ? AND tweet_id = ?", user.ID, tweetId)
+	var tweet models.Tweet
+	queryResult := models.DB.Preload("User").Take(&tweet, tweetId)
+	if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+		fmt.Println(fmt.Errorf("[ERROR] %v", queryResult.Error))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	deleteResult := models.DB.Delete(models.Like{}, "user_id = ? AND tweet_id = ?", user.ID, tweetId)
+	if deleteResult.Error != nil {
+		fmt.Println(fmt.Errorf("[ERROR] %v", deleteResult.Error))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	c.JSON(http.StatusNoContent, gin.H{"unliked": tweet})
+}
+
+func Likes(c *gin.Context) {
+	tweetId, _ := strconv.Atoi(c.Param("id"))
+
+	var likes []models.Like
+	result := models.DB.Preload("User").Where("tweet_id = ?", tweetId).Find(&likes)
 	if result.Error != nil {
 		fmt.Println(fmt.Errorf("[ERROR] %v", result.Error))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
-	c.JSON(http.StatusNoContent, gin.H{"unliked": result})
+	users := []models.User{}
+	for _, like := range likes {
+		users = append(users, like.User)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"likes": users})
 }
