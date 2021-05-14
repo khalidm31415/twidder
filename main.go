@@ -27,36 +27,35 @@ func main() {
 	}
 
 	models.ConnectDatabase()
+	middelwares.InitAuthtMiddleware()
 
 	r := gin.Default()
 
-	authMiddleware := middelwares.GeAuthtMiddleware()
-
 	r.GET("/ping", ping)
 
-	r.POST("/users/signup", controllers.Signup)
-	r.POST("/users//login", authMiddleware.LoginHandler)
-	r.POST("/users//logout", authMiddleware.LogoutHandler)
-	r.GET("/users/current-user", authMiddleware.MiddlewareFunc(), controllers.CurrentUser)
-	r.DELETE("/users/deactivate-account", authMiddleware.MiddlewareFunc(), controllers.DeactivateAccount)
-	r.POST("/users/reactivate-account", controllers.ReactivateAccount)
+	r.POST("/auth/signup", controllers.Signup)
+	r.POST("/auth//login", controllers.Login)
+	r.POST("/auth//logout", controllers.Logout)
+	r.GET("/auth/current-user", middelwares.AuthMiddleware.MiddlewareFunc(), controllers.CurrentUser)
+	r.DELETE("/auth/deactivate-account", middelwares.AuthMiddleware.MiddlewareFunc(), controllers.DeactivateAccount)
+	r.POST("/auth/reactivate-account", controllers.ReactivateAccount)
 
 	r.GET("/users", controllers.FindUsers)
 	r.GET("/users/:id", controllers.FindUser)
 	r.GET("/users/:id/tweets", controllers.GetUsersTweets)
 
-	r.POST("/users/:id/follow", authMiddleware.MiddlewareFunc(), controllers.Follow)
-	r.POST("/users/:id/unfollow", authMiddleware.MiddlewareFunc(), controllers.Unfollow)
+	r.POST("/users/:id/follow", middelwares.AuthMiddleware.MiddlewareFunc(), controllers.Follow)
+	r.POST("/users/:id/unfollow", middelwares.AuthMiddleware.MiddlewareFunc(), controllers.Unfollow)
 	r.GET("/users/:id/followers", controllers.GetUsersFollowers)
 	r.GET("/users/:id/followings", controllers.GetUsersFollowings)
 
 	r.GET("/tweets", controllers.FindTweets)
 	r.GET("/tweets/:id", controllers.FindTweet)
-	r.POST("/tweets", authMiddleware.MiddlewareFunc(), controllers.CreateTweet)
-	r.DELETE("/tweets/:id", authMiddleware.MiddlewareFunc(), controllers.DeleteTweet)
+	r.POST("/tweets", middelwares.AuthMiddleware.MiddlewareFunc(), controllers.CreateTweet)
+	r.DELETE("/tweets/:id", middelwares.AuthMiddleware.MiddlewareFunc(), controllers.DeleteTweet)
 
-	r.POST("/tweets/:id/like", authMiddleware.MiddlewareFunc(), controllers.Like)
-	r.POST("/tweets/:id/unlike", authMiddleware.MiddlewareFunc(), controllers.Unlike)
+	r.POST("/tweets/:id/like", middelwares.AuthMiddleware.MiddlewareFunc(), controllers.Like)
+	r.POST("/tweets/:id/unlike", middelwares.AuthMiddleware.MiddlewareFunc(), controllers.Unlike)
 	r.GET("/tweets/:id/likes", controllers.Likes)
 
 	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")

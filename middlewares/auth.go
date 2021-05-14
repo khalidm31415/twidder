@@ -15,13 +15,14 @@ import (
 )
 
 var identityKey = "id"
+var AuthMiddleware *jwt.GinJWTMiddleware
 
 type login struct {
 	Username string `form:"username" json:"username" binding:"required"`
 	Password string `form:"password" json:"password" binding:"required"`
 }
 
-func GeAuthtMiddleware() *jwt.GinJWTMiddleware {
+func InitAuthtMiddleware() {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "test zone",
 		Key:         []byte(os.Getenv("JWT_SECRET_KEY")),
@@ -91,5 +92,5 @@ func GeAuthtMiddleware() *jwt.GinJWTMiddleware {
 		log.Fatal("authMiddleware.MiddlewareInit() Error:" + errInit.Error())
 	}
 
-	return authMiddleware
+	AuthMiddleware = authMiddleware
 }
