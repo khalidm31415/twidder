@@ -26,12 +26,23 @@ type ReactivateAccountInput struct {
 	Password string `binding:"required"`
 }
 
+// FindUsers godoc
+// @Description get all users
+// @Tags users
+// @Success 200 {array} models.User
+// @Router /users [get]
 func FindUsers(c *gin.Context) {
 	var users []models.User
 	models.DB.Find(&users)
 	c.JSON(http.StatusOK, gin.H{"users": users})
 }
 
+// FindUsers godoc
+// @Description get user by id
+// @Tags users
+// @Param id path int true "User ID"
+// @Success 200 {object} models.User
+// @Router /users/{id} [get]
 func FindUser(c *gin.Context) {
 	userId, _ := strconv.Atoi(c.Param("id"))
 	var user models.User
@@ -44,6 +55,12 @@ func FindUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }
 
+// FindUsers godoc
+// @Description get a user's tweets
+// @Tags users
+// @Param id path int true "User ID"
+// @Success 200 {array} models.Tweet
+// @Router /users/{id}/tweets [get]
 func GetUsersTweets(c *gin.Context) {
 	userId, _ := strconv.Atoi(c.Param("id"))
 	var tweets []models.Tweet
