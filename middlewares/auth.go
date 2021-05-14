@@ -17,7 +17,7 @@ import (
 var identityKey = "id"
 var AuthMiddleware *jwt.GinJWTMiddleware
 
-type login struct {
+type LoginInput struct {
 	Username string `form:"username" json:"username" binding:"required"`
 	Password string `form:"password" json:"password" binding:"required"`
 }
@@ -30,7 +30,7 @@ func InitAuthtMiddleware() {
 		MaxRefresh:  time.Hour,
 		IdentityKey: identityKey,
 		Authenticator: func(c *gin.Context) (interface{}, error) {
-			var loginVals login
+			var loginVals LoginInput
 			if err := c.ShouldBind(&loginVals); err != nil {
 				return "", jwt.ErrMissingLoginValues
 			}

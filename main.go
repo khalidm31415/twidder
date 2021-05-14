@@ -66,7 +66,7 @@ func main() {
 
 // Ping godoc
 // @Description ping the server.
-// @Tags root
+// @Tags ping
 // @Success 200 {string} string "pong"
 // @Router /ping [get]
 func ping(c *gin.Context) {

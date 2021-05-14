@@ -1,4 +1,20 @@
 definitions:
+  controllers.SignupInput:
+    properties:
+      displayName:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - displayName
+    - email
+    - password
+    - username
+    type: object
   gorm.DeletedAt:
     properties:
       time:
@@ -6,6 +22,16 @@ definitions:
       valid:
         description: Valid is true if Time is not NULL
         type: boolean
+    type: object
+  middelwares.LoginInput:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
     type: object
   models.Tweet:
     properties:
@@ -47,6 +73,70 @@ info:
   description: A twitter-like API implemented with Gin, GORM, and MySQL.
   title: Twitter with Gin and GORM
 paths:
+  /auth/current-user:
+    get:
+      consumes:
+      - application/json
+      description: check currently logged in user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      tags:
+      - auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: login
+      parameters:
+      - description: Login
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/middelwares.LoginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: logout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      tags:
+      - auth
+  /auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: create new user
+      parameters:
+      - description: Signup to create a new user
+        in: body
+        name: signup
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.SignupInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+      tags:
+      - auth
   /ping:
     get:
       description: ping the server.
@@ -56,7 +146,7 @@ paths:
           schema:
             type: string
       tags:
-      - root
+      - ping
   /users:
     get:
       description: get all users

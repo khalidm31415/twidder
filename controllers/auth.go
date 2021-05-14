@@ -13,7 +13,7 @@ import (
 
 var identityKey = "id"
 
-type CreateUserInput struct {
+type SignupInput struct {
 	Username    string `binding:"required"`
 	DisplayName string `binding:"required"`
 	Email       string `binding:"required"`
@@ -25,8 +25,16 @@ type ReactivateAccountInput struct {
 	Password string `binding:"required"`
 }
 
+// Signup godoc
+// @Description create new user
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param signup body SignupInput true "Signup to create a new user"
+// @Success 200 {object} models.User
+// @Router /auth/signup [post]
 func Signup(c *gin.Context) {
-	var input CreateUserInput
+	var input SignupInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -54,14 +62,36 @@ func Signup(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }
 
+// Login godoc
+// @Description login
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param login body middelwares.LoginInput true "Login"
+// @Success 200
+// @Router /auth/login [post]
 func Login(c *gin.Context) {
 	middelwares.AuthMiddleware.LoginHandler(c)
 }
 
+// Logout godoc
+// @Description logout
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Success 200
+// @Router /auth/logout [post]
 func Logout(c *gin.Context) {
 	middelwares.AuthMiddleware.LogoutHandler(c)
 }
 
+// CurrentUser godoc
+// @Description check currently logged in user
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Success 200
+// @Router /auth/current-user [get]
 func CurrentUser(c *gin.Context) {
 	user, _ := c.Get(identityKey)
 	c.JSON(200, gin.H{
