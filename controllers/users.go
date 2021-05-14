@@ -34,7 +34,12 @@ func FindUsers(c *gin.Context) {
 func FindUser(c *gin.Context) {
 	userId, _ := strconv.Atoi(c.Param("id"))
 	var user models.User
-	models.DB.Find(&user, userId)
+	result := models.DB.Take(&user, userId)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		fmt.Println(fmt.Errorf("[ERROR] %v", result.Error))
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }
 
