@@ -38,6 +38,23 @@ func FindTweet(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"payload": tweet})
 }
 
+func Timeline(c *gin.Context) {
+	v, _ := c.Get(identityKey)
+	user, _ := v.(models.User)
+
+	follows := []models.Follow{}
+	models.DB.Preload("Followee").Where("follower_id = ?", user.ID).Find(&follows)
+
+	followingIds := []int{}
+	for _, follow := range follows {
+		followingIds = append(followingIds, int(follow.FolloweeID))
+	}
+
+	var tweets []models.Tweet
+	models.DB.Preload("User").Where("user_id IN ?", followingIds).Find(&tweets)
+	c.JSON(http.StatusOK, gin.H{"tweets": tweets})
+}
+
 func CreateTweet(c *gin.Context) {
 	v, _ := c.Get(identityKey)
 	user, _ := v.(models.User)

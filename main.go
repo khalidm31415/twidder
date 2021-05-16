@@ -53,6 +53,7 @@ func main() {
 	r.GET("/tweets/:id", controllers.FindTweet)
 	r.POST("/tweets", middelwares.AuthMiddleware.MiddlewareFunc(), controllers.CreateTweet)
 	r.DELETE("/tweets/:id", middelwares.AuthMiddleware.MiddlewareFunc(), controllers.DeleteTweet)
+	r.GET("/tweets/timeline", middelwares.AuthMiddleware.MiddlewareFunc(), controllers.Timeline)
 
 	r.POST("/tweets/:id/like", middelwares.AuthMiddleware.MiddlewareFunc(), controllers.Like)
 	r.POST("/tweets/:id/unlike", middelwares.AuthMiddleware.MiddlewareFunc(), controllers.Unlike)
