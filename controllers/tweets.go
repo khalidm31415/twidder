@@ -16,8 +16,13 @@ type CreateTweetInput struct {
 }
 
 func FindTweets(c *gin.Context) {
+	q := c.Query("q")
 	var tweets []models.Tweet
-	models.DB.Preload("User").Find(&tweets)
+	tx := models.DB.Preload("User")
+	if len(q) > 0 {
+		tx.Where(fmt.Sprintf("MATCH(text) AGAINST('%s' IN NATURAL LANGUAGE MODE)", q))
+	}
+	tx.Find(&tweets)
 	c.JSON(http.StatusOK, gin.H{"tweets": tweets})
 }
 
