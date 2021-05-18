@@ -31,7 +31,7 @@ func main() {
 
 	r := gin.Default()
 
-	r.GET("/ping", ping)
+	r.GET("/ping", controllers.Ping)
 
 	r.POST("/auth/signup", controllers.Signup)
 	r.POST("/auth/login", controllers.Login)
@@ -63,13 +63,4 @@ func main() {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
 	r.Run(fmt.Sprintf(":%s", os.Getenv("PORT")))
-}
-
-// Ping godoc
-// @Description ping the server.
-// @Tags ping
-// @Success 200 {string} string "pong"
-// @Router /ping [get]
-func ping(c *gin.Context) {
-	c.JSON(http.StatusOK, "pong")
 }
