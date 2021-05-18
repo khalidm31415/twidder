@@ -34,8 +34,8 @@ func main() {
 	r.GET("/ping", ping)
 
 	r.POST("/auth/signup", controllers.Signup)
-	r.POST("/auth//login", controllers.Login)
-	r.POST("/auth//logout", controllers.Logout)
+	r.POST("/auth/login", controllers.Login)
+	r.POST("/auth/logout", controllers.Logout)
 	r.GET("/auth/current-user", middelwares.AuthMiddleware.MiddlewareFunc(), controllers.CurrentUser)
 	r.DELETE("/auth/deactivate-account", middelwares.AuthMiddleware.MiddlewareFunc(), controllers.DeactivateAccount)
 	r.POST("/auth/reactivate-account", controllers.ReactivateAccount)
