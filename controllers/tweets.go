@@ -16,13 +16,15 @@ type CreateTweetInput struct {
 }
 
 func FindTweets(c *gin.Context) {
-	q := c.Query("q")
-	var tweets []models.Tweet
 	tx := models.DB.Preload("User")
+
+	q := c.Query("q")
 	if len(q) > 0 {
 		tx.Where("MATCH(text) AGAINST(? IN NATURAL LANGUAGE MODE)", q)
 	}
-	tx.Find(&tweets)
+
+	var tweets []models.Tweet
+	tx.Scopes(Paginate(c)).Find(&tweets)
 	c.JSON(http.StatusOK, gin.H{"tweets": tweets})
 }
 
@@ -51,7 +53,7 @@ func Timeline(c *gin.Context) {
 	}
 
 	var tweets []models.Tweet
-	models.DB.Preload("User").Where("user_id IN ?", followingIds).Find(&tweets)
+	models.DB.Preload("User").Where("user_id IN ?", followingIds).Scopes(Paginate(c)).Find(&tweets)
 	c.JSON(http.StatusOK, gin.H{"tweets": tweets})
 }
 
