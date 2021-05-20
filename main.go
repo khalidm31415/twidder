@@ -5,7 +5,6 @@ import (
 	"gin-twitter/controllers"
 	"gin-twitter/middlewares"
 	"gin-twitter/models"
-	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
