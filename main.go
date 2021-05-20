@@ -16,7 +16,7 @@ import (
 )
 
 // @title Twitter with Gin and GORM
-// @description A twitter-like API implemented with Gin, GORM, and MySQL.
+// @description Imitating twitter backend API with Gin, GORM, and MySQL.
 
 // @host localhost:8080
 func main() {
