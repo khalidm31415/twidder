@@ -13,7 +13,8 @@ services:
       MYSQL_PASSWORD: gin_twitter
   api:
     build: .
-    command: go run main.go
+    restart: on-failure
+    command: /bin/gin_twitter
     volumes:
       - .:/app
     ports:
