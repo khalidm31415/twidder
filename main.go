@@ -57,6 +57,9 @@ func main() {
 	r.POST("/tweets/:id/unlike", middelwares.AuthMiddleware.MiddlewareFunc(), controllers.Unlike)
 	r.GET("/tweets/:id/likes", controllers.Likes)
 
+	r.POST("/tweets/:id/reply", middelwares.AuthMiddleware.MiddlewareFunc(), controllers.Reply)
+	r.GET("/tweets/:id/replies", controllers.Replies)
+
 	url := ginSwagger.URL("/swagger/doc.json")
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 

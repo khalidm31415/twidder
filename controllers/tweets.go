@@ -15,6 +15,10 @@ type CreateTweetInput struct {
 	Text string `binding:"required"`
 }
 
+type ReplyInput struct {
+	Text string `binding:"required"`
+}
+
 func FindTweets(c *gin.Context) {
 	tx := models.DB.Preload("User")
 
@@ -37,7 +41,17 @@ func FindTweet(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Tweet not found"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"payload": tweet})
+
+	conversation := []models.Tweet{}
+	currentTweetId := tweet.InReplyToTweetID
+	for currentTweetId != nil {
+		var inReplyToTweet models.Tweet
+		models.DB.Preload("User").Take(&inReplyToTweet, currentTweetId)
+		conversation = append(conversation, inReplyToTweet)
+		currentTweetId = inReplyToTweet.InReplyToTweetID
+	}
+
+	c.JSON(http.StatusOK, gin.H{"tweet": tweet, "conversation": conversation})
 }
 
 func Timeline(c *gin.Context) {
@@ -79,6 +93,49 @@ func CreateTweet(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"tweets": tweet})
+}
+
+func Reply(c *gin.Context) {
+	inReplyToTweetId, _ := strconv.Atoi(c.Param("id"))
+	var replyToTweet models.Tweet
+	searchResult := models.DB.Take(&replyToTweet, inReplyToTweetId)
+	if errors.Is(searchResult.Error, gorm.ErrRecordNotFound) {
+		fmt.Println(fmt.Errorf("[ERROR] %v", searchResult.Error))
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tweet not found"})
+		return
+	}
+
+	v, _ := c.Get(identityKey)
+	user, _ := v.(models.User)
+
+	var input CreateTweetInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	tweet := models.Tweet{
+		Text:             input.Text,
+		UserID:           user.ID,
+		User:             user,
+		InReplyToTweetID: &replyToTweet.ID,
+	}
+
+	fmt.Println("ID", tweet.ID)
+
+	if result := models.DB.Create(&tweet); result.Error != nil {
+		fmt.Println(fmt.Errorf("[ERROR] %v", result.Error))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+}
+
+func Replies(c *gin.Context) {
+	inReplyToTweetId, _ := strconv.Atoi(c.Param("id"))
+
+	var replies []models.Tweet
+	models.DB.Scopes(Paginate(c)).Where("in_reply_to_tweet_id = ?", inReplyToTweetId).Preload("User").Find(&replies)
+	c.JSON(http.StatusOK, gin.H{"replies": replies})
 }
 
 func DeleteTweet(c *gin.Context) {
