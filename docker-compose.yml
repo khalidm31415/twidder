@@ -22,12 +22,12 @@ services:
     depends_on:
       - db
     environment: 
-        GIN_MODE: debug
-        PORT: 8080
-        JWT_SECRET_KEY: secret_key
-        MYSQL_DSN: gin_twitter:gin_twitter@tcp(db:3306)/gin_twitter?charset=utf8&parseTime=True
-        MAX_IDLE_CONNECTIONS: 10
-        MAX_OPEN_CONNECTIONS: 100
-        CONNECTION_MAX_LIFETIME_MINUTES: 60
+      GIN_MODE: debug
+      PORT: 8080
+      JWT_SECRET_KEY: secret_key
+      MYSQL_DSN: gin_twitter:gin_twitter@tcp(db:3306)/gin_twitter?charset=utf8&parseTime=True
+      MAX_IDLE_CONNECTIONS: 10
+      MAX_OPEN_CONNECTIONS: 100
+      CONNECTION_MAX_LIFETIME_MINUTES: 60
 volumes:
   db_data: {}
