@@ -126,6 +126,8 @@ func Reply(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
+
+	c.JSON(http.StatusCreated, gin.H{"replied": tweet})
 }
 
 func Replies(c *gin.Context) {
