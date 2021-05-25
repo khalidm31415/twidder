@@ -121,8 +121,6 @@ func Reply(c *gin.Context) {
 		InReplyToTweetID: &replyToTweet.ID,
 	}
 
-	fmt.Println("ID", tweet.ID)
-
 	if result := models.DB.Create(&tweet); result.Error != nil {
 		fmt.Println(fmt.Errorf("[ERROR] %v", result.Error))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
