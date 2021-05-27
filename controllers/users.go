@@ -3,9 +3,9 @@ package controllers
 import (
 	"errors"
 	"fmt"
-	"gin-twitter/models"
 	"net/http"
 	"strconv"
+	"twidder/models"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

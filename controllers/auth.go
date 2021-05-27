@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"fmt"
-	"gin-twitter/middlewares"
-	"gin-twitter/models"
 	"net/http"
+	"twidder/middlewares"
+	"twidder/models"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"

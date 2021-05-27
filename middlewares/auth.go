@@ -2,11 +2,11 @@ package middelwares
 
 import (
 	"errors"
-	"gin-twitter/models"
 	"log"
 	"net/http"
 	"os"
 	"time"
+	"twidder/models"
 
 	"github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"

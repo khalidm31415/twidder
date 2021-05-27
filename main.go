@@ -2,17 +2,17 @@ package main
 
 import (
 	"fmt"
-	"gin-twitter/controllers"
-	"gin-twitter/middlewares"
-	"gin-twitter/models"
 	"os"
+	"twidder/controllers"
+	"twidder/middlewares"
+	"twidder/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
-	_ "gin-twitter/docs"
+	_ "twidder/docs"
 )
 
 // @title Twitter with Gin and GORM

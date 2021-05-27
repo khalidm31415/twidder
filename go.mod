@@ -1,4 +1,4 @@
-module gin-twitter
+module twidder
 
 go 1.16
 
