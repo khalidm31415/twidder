@@ -11,14 +11,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type LikeInput struct {
-	TweetID uint `json:"tweet_id" binding:"required"`
-}
-
-type UnlikeInput struct {
-	TweetID uint `json:"tweet_id" binding:"required"`
-}
-
 func Like(c *gin.Context) {
 	v, _ := c.Get(identityKey)
 	user, _ := v.(models.User)
