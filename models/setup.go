@@ -43,5 +43,6 @@ func ConnectDatabase() {
 	database.AutoMigrate(&Tweet{})
 	database.AutoMigrate(&Follow{})
 	database.AutoMigrate(&Like{})
+	database.AutoMigrate(&Notification{})
 	DB = database
 }

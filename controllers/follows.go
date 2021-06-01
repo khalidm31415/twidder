@@ -37,12 +37,29 @@ func Follow(c *gin.Context) {
 		Followee:   followee,
 	}
 
-	if result := models.DB.Create(&follow); result.Error != nil {
-		fmt.Println(fmt.Errorf("[ERROR]: %v", result.Error))
+	transactionErr := models.DB.Transaction(func(tx *gorm.DB) error {
+
+		if createFollowResult := tx.Create(&follow); createFollowResult.Error != nil {
+			fmt.Println(fmt.Errorf("[ERROR] %v", createFollowResult.Error))
+			return createFollowResult.Error
+		}
+
+		followedNotifications := models.NewFollowedNotification(followee, follow)
+		if createNotificationResult := tx.Create(&followedNotifications); createNotificationResult.Error != nil {
+			fmt.Println(fmt.Errorf("[ERROR] %v", createNotificationResult.Error))
+			return createNotificationResult.Error
+		}
+
+		return nil
+	})
+
+	if transactionErr != nil {
+		fmt.Println(fmt.Errorf("[ERROR] %v", transactionErr))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"payload": follow})
+
+	c.JSON(http.StatusCreated, gin.H{"followed": follow})
 }
 
 func Unfollow(c *gin.Context) {
@@ -56,7 +73,7 @@ func Unfollow(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
-	c.JSON(http.StatusNoContent, gin.H{"payload": result})
+	c.JSON(http.StatusNoContent, gin.H{"unfollowed": result})
 }
 
 func GetUsersFollowers(c *gin.Context) {
