@@ -97,8 +97,8 @@ func CreateTweet(c *gin.Context) {
 
 func Reply(c *gin.Context) {
 	inReplyToTweetId, _ := strconv.Atoi(c.Param("id"))
-	var replyToTweet models.Tweet
-	searchResult := models.DB.Take(&replyToTweet, inReplyToTweetId)
+	var inReplyToTweet models.Tweet
+	searchResult := models.DB.Preload("User").Take(&inReplyToTweet, inReplyToTweetId)
 	if errors.Is(searchResult.Error, gorm.ErrRecordNotFound) {
 		fmt.Println(fmt.Errorf("[ERROR] %v", searchResult.Error))
 		c.JSON(http.StatusNotFound, gin.H{"error": "Tweet not found"})
@@ -118,11 +118,27 @@ func Reply(c *gin.Context) {
 		Text:             input.Text,
 		UserID:           user.ID,
 		User:             user,
-		InReplyToTweetID: &replyToTweet.ID,
+		InReplyToTweetID: &inReplyToTweet.ID,
 	}
 
-	if result := models.DB.Create(&tweet); result.Error != nil {
-		fmt.Println(fmt.Errorf("[ERROR] %v", result.Error))
+	transactionErr := models.DB.Transaction(func(tx *gorm.DB) error {
+
+		if createTweetResult := tx.Create(&tweet); createTweetResult.Error != nil {
+			fmt.Println(fmt.Errorf("[ERROR] %v", createTweetResult.Error))
+			return createTweetResult.Error
+		}
+
+		repliedNotifications := models.NewRepliedNotification(inReplyToTweet.User, tweet)
+		if createNotificationResult := tx.Create(&repliedNotifications); createNotificationResult.Error != nil {
+			fmt.Println(fmt.Errorf("[ERROR] %v", createNotificationResult.Error))
+			return createNotificationResult.Error
+		}
+
+		return nil
+	})
+
+	if transactionErr != nil {
+		fmt.Println(fmt.Errorf("[ERROR] %v", transactionErr))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}

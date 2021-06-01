@@ -17,7 +17,7 @@ func Like(c *gin.Context) {
 	tweetId, _ := strconv.Atoi(c.Param("id"))
 
 	var tweet models.Tweet
-	result := models.DB.First(&tweet, tweetId)
+	result := models.DB.Preload("User").First(&tweet, tweetId)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		fmt.Println(fmt.Errorf("[ERROR] %v", result.Error))
 		c.JSON(http.StatusNotFound, gin.H{"error": result.Error})
@@ -31,12 +31,29 @@ func Like(c *gin.Context) {
 		Tweet:   tweet,
 	}
 
-	if result := models.DB.Create(&like); result.Error != nil {
-		fmt.Println(fmt.Errorf("[ERROR] %v", result.Error))
+	transactionErr := models.DB.Transaction(func(tx *gorm.DB) error {
+
+		if createLikeResult := tx.Create(&like); createLikeResult.Error != nil {
+			fmt.Println(fmt.Errorf("[ERROR] %v", createLikeResult.Error))
+			return createLikeResult.Error
+		}
+
+		repliedNotifications := models.NewLikedNotification(tweet.User, like)
+		if createNotificationResult := tx.Create(&repliedNotifications); createNotificationResult.Error != nil {
+			fmt.Println(fmt.Errorf("[ERROR] %v", createNotificationResult.Error))
+			return createNotificationResult.Error
+		}
+
+		return nil
+	})
+
+	if transactionErr != nil {
+		fmt.Println(fmt.Errorf("[ERROR] %v", transactionErr))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"liked": tweet})
+
+	c.JSON(http.StatusCreated, gin.H{"liked": like})
 }
 
 func Unlike(c *gin.Context) {
