@@ -18,6 +18,7 @@ type Notification struct {
 	LikeID       *uint
 	Like         *Like
 	CreatedAt    time.Time `gorm:"not null"`
+	UpdatedAt    time.Time `gorm:"not null"`
 	DeletedAt    gorm.DeletedAt
 }
 
