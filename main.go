@@ -60,6 +60,8 @@ func main() {
 	r.POST("/tweets/:id/reply", middelwares.AuthMiddleware.MiddlewareFunc(), controllers.Reply)
 	r.GET("/tweets/:id/replies", controllers.Replies)
 
+	r.GET("/notifications", middelwares.AuthMiddleware.MiddlewareFunc(), controllers.Notifications)
+
 	url := ginSwagger.URL("/swagger/doc.json")
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
