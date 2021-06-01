@@ -105,25 +105,31 @@ func DeactivateAccount(c *gin.Context) {
 	user, _ := v.(models.User)
 
 	transactionErr := models.DB.Transaction(func(tx *gorm.DB) error {
-		deleteLikesResult := models.DB.Delete(&models.Like{}, "likes.user_id = ?", user.ID)
+		deleteNotificationsResult := tx.Delete(&models.Notification{}, "notifications.user_id = ?", user.ID)
+		if deleteNotificationsResult.Error != nil {
+			fmt.Println(fmt.Errorf("[ERROR] %v", deleteNotificationsResult.Error))
+			return deleteNotificationsResult.Error
+		}
+
+		deleteLikesResult := tx.Delete(&models.Like{}, "likes.user_id = ?", user.ID)
 		if deleteLikesResult.Error != nil {
 			fmt.Println(fmt.Errorf("[ERROR] %v", deleteLikesResult.Error))
 			return deleteLikesResult.Error
 		}
 
-		deleteFollowsResult := models.DB.Delete(&models.Follow{}, "follows.follower_id = ? OR follows.followee_id", user.ID, user.ID)
+		deleteFollowsResult := tx.Delete(&models.Follow{}, "follows.follower_id = ? OR follows.followee_id", user.ID, user.ID)
 		if deleteFollowsResult.Error != nil {
 			fmt.Println(fmt.Errorf("[ERROR] %v", deleteFollowsResult.Error))
 			return deleteFollowsResult.Error
 		}
 
-		deleteTweetsResult := models.DB.Delete(&models.Tweet{}, "tweets.user_id = ?", user.ID)
+		deleteTweetsResult := tx.Delete(&models.Tweet{}, "tweets.user_id = ?", user.ID)
 		if deleteTweetsResult.Error != nil {
 			fmt.Println(fmt.Errorf("[ERROR] %v", deleteTweetsResult.Error))
 			return deleteTweetsResult.Error
 		}
 
-		deleteUserResult := models.DB.Delete(&user)
+		deleteUserResult := tx.Delete(&user)
 		if deleteUserResult.Error != nil {
 			fmt.Println(fmt.Errorf("[ERROR] %v", deleteUserResult.Error))
 			return deleteUserResult.Error
@@ -164,25 +170,31 @@ func ReactivateAccount(c *gin.Context) {
 	}
 
 	transactionErr := models.DB.Transaction(func(tx *gorm.DB) error {
-		restoreLikesResult := models.DB.Model(&models.Like{}).Unscoped().Where("likes.user_id = ?", user.ID)
+		restoreNotificationsResult := tx.Model(&models.Notification{}).Unscoped().Where("notifications.user_id = ?", user.ID).Update("deleted_at", nil)
+		if restoreNotificationsResult.Error != nil {
+			fmt.Println(fmt.Errorf("[ERROR] %v", restoreNotificationsResult.Error))
+			return restoreNotificationsResult.Error
+		}
+
+		restoreLikesResult := tx.Model(&models.Like{}).Unscoped().Where("likes.user_id = ?", user.ID).Update("deleted_at", nil)
 		if restoreLikesResult.Error != nil {
 			fmt.Println(fmt.Errorf("[ERROR] %v", restoreLikesResult.Error))
 			return restoreLikesResult.Error
 		}
 
-		restoreFollowsResult := models.DB.Model(&models.Follow{}).Unscoped().Where("follows.follower_id = ? OR follows.followee_id", user.ID, user.ID)
+		restoreFollowsResult := tx.Model(&models.Follow{}).Unscoped().Where("follows.follower_id = ? OR follows.followee_id", user.ID, user.ID).Update("deleted_at", nil)
 		if restoreFollowsResult.Error != nil {
 			fmt.Println(fmt.Errorf("[ERROR] %v", restoreFollowsResult.Error))
 			return restoreFollowsResult.Error
 		}
 
-		restoreTweetsResult := models.DB.Model(&models.Tweet{}).Unscoped().Where("tweets.user_id = ?", user.ID)
+		restoreTweetsResult := tx.Model(&models.Tweet{}).Unscoped().Where("tweets.user_id = ?", user.ID).Update("deleted_at", nil)
 		if restoreTweetsResult.Error != nil {
 			fmt.Println(fmt.Errorf("[ERROR] %v", restoreTweetsResult.Error))
 			return restoreTweetsResult.Error
 		}
 
-		restoreUserResult := models.DB.Model(&user).Update("deleted_at", nil)
+		restoreUserResult := tx.Model(&user).Update("deleted_at", nil)
 		if restoreUserResult.Error != nil {
 			fmt.Println(fmt.Errorf("[ERROR] %v", result.Error))
 			return restoreUserResult.Error
