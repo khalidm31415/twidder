@@ -7,14 +7,14 @@ services:
       - db_data:/var/lib/mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: gin_twitter
-      MYSQL_DATABASE: gin_twitter
-      MYSQL_USER: gin_twitter
-      MYSQL_PASSWORD: gin_twitter
+      MYSQL_ROOT_PASSWORD: twidder
+      MYSQL_DATABASE: twidder
+      MYSQL_USER: twidder
+      MYSQL_PASSWORD: twidder
   api:
     build: .
     restart: on-failure
-    command: /bin/gin_twitter
+    command: /bin/twidder
     volumes:
       - .:/app
     ports:
@@ -25,7 +25,7 @@ services:
       GIN_MODE: debug
       PORT: 8080
       JWT_SECRET_KEY: secret_key
-      MYSQL_DSN: gin_twitter:gin_twitter@tcp(db:3306)/gin_twitter?charset=utf8&parseTime=True
+      MYSQL_DSN: twidder:twidder@tcp(db:3306)/twidder?charset=utf8&parseTime=True
       MAX_IDLE_CONNECTIONS: 10
       MAX_OPEN_CONNECTIONS: 100
       CONNECTION_MAX_LIFETIME_MINUTES: 60

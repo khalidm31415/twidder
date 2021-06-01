@@ -15,7 +15,7 @@ import (
 	_ "twidder/docs"
 )
 
-// @title Twitter with Gin and GORM
+// @title Twidder
 // @description Imitating twitter backend API with Gin, GORM, and MySQL.
 
 // @host localhost:8080

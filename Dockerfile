@@ -6,7 +6,7 @@ COPY go.sum .
 RUN go mod download
 COPY . .
 ENV CGO_ENABLED=0
-RUN go build -o /bin/gin_twitter
+RUN go build -o /bin/twidder
 
 FROM scratch
-COPY --from=build /bin/gin_twitter /bin/gin_twitter
+COPY --from=build /bin/twidder /bin/twidder
