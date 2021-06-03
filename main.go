@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"twidder/middlewares"
 	"twidder/models"
 	"twidder/router"
 
@@ -22,7 +21,6 @@ func main() {
 	}
 
 	models.ConnectDatabase()
-	middelwares.InitAuthtMiddleware()
 
 	r := router.SetupRouter()
 
