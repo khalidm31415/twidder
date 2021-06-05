@@ -3,18 +3,12 @@ package test
 import (
 	"net/http"
 	"net/http/httptest"
-	"testing"
-	"twidder/router"
 )
 
-func TestPing(t *testing.T) {
-	r := router.SetupRouter()
-
+func (suite *Suite) TestPing() {
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/ping", nil)
-	r.ServeHTTP(w, req)
-
-	if w.Code != 200 {
-		t.Errorf("Expected ping status 200 but got %v", w.Code)
-	}
+	req, err := http.NewRequest("GET", "/ping", nil)
+	suite.NoError(err)
+	suite.router.ServeHTTP(w, req)
+	suite.Equal(200, w.Code, "ping status should be 200")
 }

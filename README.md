@@ -23,3 +23,8 @@ Imitating twitter backend API using Gin, GORM, and MySQL, just for learning purp
 
 ### Documentation
 After running the server, you can checkout the docs at `/swagger/index.html`
+
+### Tests
+```
+go test -v ./tests/
+```
