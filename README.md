@@ -1,3 +1,4 @@
+# Twidder
 Imitating twitter backend API using Gin, GORM, and MySQL, just for learning purpose. 
 
 ## Features
@@ -14,17 +15,25 @@ Imitating twitter backend API using Gin, GORM, and MySQL, just for learning purp
 
 ## Getting Started
 ### Using Local GO Installation
-1. Run `go mod download` to install the dependencies.
 1. Create a `.env` file, set your env variables there, see the example in `.env.example`.
-1. Run `go run main.go` to start the service.
+2. Install the dependencies.
+```
+go mod download
+```
+3. Start the service.
+```
+go run main.go
+```
 ### Using Docker Compose
-1. Run `docker-compose build`
-1. Run `docker-compose up`
+```
+docker-compose build
+docker-compose up
+```
 
-### Documentation
+## Documentation
 After running the server, you can checkout the docs at `/swagger/index.html`
 
-### Tests
+## Test
 ```
 go test -v ./tests/
 ```
